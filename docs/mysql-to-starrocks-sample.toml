@@ -1,0 +1,69 @@
+# name 必填，多实例运行时保证全局唯一
+name = "mysql2starrocks"
+
+[input]
+type = "mysql"
+
+[input.config.source]
+host = "127.0.0.1"
+port = 3306
+username = "root"
+password = "root"
+
+[input.config.source.options]
+#start-gtid = "3ba13781-44eb-2157-88a5-0dc879ec2221:1-123456"
+#server-id = 1001
+
+[[transforms]]
+type = "rename-column"
+[transforms.config]
+match-schema = "mysql_test"
+match-table = "tb1"
+columns = ["col_1", "col_2"]
+rename-as = ["col_11", "col_22"]
+
+[[transforms]]
+type = "delete-column"
+[transforms.config]
+match-schema = "mysql_test"
+match-table = "tb1"
+columns = ["phone"]
+
+[[transforms]]
+type = "mapper-column"
+[transforms.config]
+match-schema = "mysql_test"
+match-table = "tb1"
+[transforms.config.mapper]
+id = "user_id"
+name = "nick_name"
+
+[output]
+type = "starrocks"
+
+[output.config.target]
+host = "127.0.0.1"
+port = 9030
+load-port = 8040 # support fe httpPort:8030 or be httpPort:8040
+username = "root"
+password = ""
+
+[input.config.target.options]
+batch-size = 1000
+batch-interval-ms = 1000
+parallel-workers = 4
+
+[[output.config.routers]]
+source-schema = "sysbenchts"
+source-table = "sbtest1"
+target-schema = "sr_test"
+target-table = "ods_sbtest1"
+
+[[output.config.routers]]
+source-schema = "sysbenchts"
+source-table = "sbtest2"
+target-schema = "sr_test"
+target-table = "ods_sbtest2"
+[output.config.routers.columns-mapper]
+source-columns = []
+target-columns = []
