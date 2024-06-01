@@ -142,50 +142,16 @@ func (s *Server) initMeta(conf *config.Config) (err error) {
 	}
 
 	// router column mapper
-	for _, router := range s.Metas.Routers.Raws {
-		table, err := s.Metas.Input.Get(router.SourceSchema, router.SourceTable)
-		if err != nil {
-			return err
-		}
-		if table == nil {
-			return errors.Errorf("get input table meta failed, err: %s.%s not found", router.SourceSchema, router.SourceTable)
-		}
-		for _, column := range table.Columns {
-			router.ColumnsMapper.SourceColumns = append(router.ColumnsMapper.SourceColumns, column.Name)
-		}
-		table, err = s.Metas.Output.Get(router.TargetSchema, router.TargetTable)
-		if err != nil {
-			return err
-		}
-		if table == nil {
-			return errors.Errorf("get output table meta failed, err: %s.%s not found", router.TargetSchema, router.TargetTable)
-		}
-		for _, column := range table.Columns {
-			router.ColumnsMapper.TargetColumns = append(router.ColumnsMapper.TargetColumns, column.Name)
-		}
+	err = s.Metas.InitRouterColumnsMapper()
+	if err != nil {
+		return err
 	}
 
 	// trans
 	s.Transforms = transforms.NewMatcherTransforms(conf.TransformsConfig, s.Metas.Routers)
 
 	// router column mapper MapMapper
-	for _, router := range s.Metas.Routers.Raws {
-		// user config output.config.routers.columns-mapper.map-mapper, continue
-		if len(router.ColumnsMapper.MapMapper) > 0 {
-			continue
-		}
-		mapMapper := make(map[string]string)
-		for _, column := range router.ColumnsMapper.SourceColumns {
-			// same name mapping
-			for _, targetColumn := range router.ColumnsMapper.TargetColumns {
-				if column == targetColumn {
-					mapMapper[column] = targetColumn
-					break
-				}
-			}
-		}
-		router.ColumnsMapper.MapMapper = mapMapper
-	}
+	s.Metas.InitRouterColumnsMapperMapMapper()
 	return nil
 }
 

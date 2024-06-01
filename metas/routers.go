@@ -3,6 +3,7 @@ package metas
 import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/siddontang/go-log/log"
+	"strconv"
 	"strings"
 )
 
@@ -55,7 +56,17 @@ func GenerateMapRouterKey(schema string, table string) string {
 	return schema + MapRouterKeyDelimiter + table
 }
 
+func GenerateMapRouterVersionKey(schema string, table string, version uint) string {
+	return schema + MapRouterKeyDelimiter + table + MapRouterKeyDelimiter + strconv.Itoa(int(version))
+}
+
 func SplitMapRouterKey(key string) (schema string, table string) {
 	splits := strings.Split(key, MapRouterKeyDelimiter)
 	return splits[0], splits[1]
+}
+
+func SplitMapRouterVersionKey(key string) (schema string, table string, version uint) {
+	splits := strings.Split(key, MapRouterKeyDelimiter)
+	tmpVersion, _ := strconv.Atoi(splits[2])
+	return splits[0], splits[1], uint(tmpVersion)
 }

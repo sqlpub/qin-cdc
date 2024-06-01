@@ -19,7 +19,7 @@ func (i *InputPlugin) NewInsertMsgs(schemaName string, tableName string, tableMe
 			Database:  schemaName,
 			Table:     tableName,
 			Type:      core.MsgDML,
-			DmlMsg:    &core.DMLMsg{Action: core.InsertAction, Data: data},
+			DmlMsg:    &core.DMLMsg{Action: core.InsertAction, Data: data, TableVersion: tableMeta.Version},
 			Timestamp: time.Unix(int64(header.Timestamp), 0),
 		}
 		msgs[index] = msg
@@ -44,7 +44,7 @@ func (i *InputPlugin) NewUpdateMsgs(schemaName string, tableName string, tableMe
 			Database:  schemaName,
 			Table:     tableName,
 			Type:      core.MsgDML,
-			DmlMsg:    &core.DMLMsg{Action: core.UpdateAction, Data: data, Old: old},
+			DmlMsg:    &core.DMLMsg{Action: core.UpdateAction, Data: data, Old: old, TableVersion: tableMeta.Version},
 			Timestamp: time.Unix(int64(header.Timestamp), 0),
 		}
 		msgs = append(msgs, msg)
@@ -65,7 +65,7 @@ func (i *InputPlugin) NewDeleteMsgs(schemaName string, tableName string, tableMe
 			Database:  schemaName,
 			Table:     tableName,
 			Type:      core.MsgDML,
-			DmlMsg:    &core.DMLMsg{Action: core.DeleteAction, Data: data},
+			DmlMsg:    &core.DMLMsg{Action: core.DeleteAction, Data: data, TableVersion: tableMeta.Version},
 			Timestamp: time.Unix(int64(header.Timestamp), 0),
 		}
 		msgs[index] = msg

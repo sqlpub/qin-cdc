@@ -1,5 +1,7 @@
 package metas
 
+import "encoding/json"
+
 type ColumnType = int
 
 const (
@@ -24,7 +26,9 @@ type Table struct {
 	Comment           string
 	Columns           []Column
 	PrimaryKeyColumns []Column
+	Version           uint
 }
+
 type Column struct {
 	Name         string
 	Type         ColumnType
@@ -51,4 +55,16 @@ type DdlStatement struct {
 	IsDropTable     bool
 	IsRenameTable   bool
 	IsTruncateTable bool
+}
+
+func (t *Table) DeepCopy() (*Table, error) {
+	b, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+	ret := &Table{}
+	if err = json.Unmarshal(b, ret); err != nil {
+		panic(err)
+	}
+	return ret, nil
 }

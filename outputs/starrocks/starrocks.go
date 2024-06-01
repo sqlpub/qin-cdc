@@ -117,13 +117,10 @@ func (o *OutputPlugin) flushMsgTxnBuffer(pos core.Position) {
 	}
 	// table level export
 	for k, msgs := range o.msgTxnBuffer.tableMsgMap {
-		table, err := o.metas.Input.Get(metas.SplitMapRouterKey(k))
-		if err != nil {
-			log.Fatalf("table: %s meta get failed: %s", k, err.Error())
-		}
+		columnsMapper := o.metas.Routers.Maps[k].ColumnsMapper
 		targetSchema := o.metas.Routers.Maps[k].TargetSchema
 		targetTable := o.metas.Routers.Maps[k].TargetTable
-		err = o.execute(msgs, table, targetSchema, targetTable)
+		err := o.execute(msgs, columnsMapper, targetSchema, targetTable)
 		if err != nil {
 			log.Fatalf("do %s bulk err %v", PluginName, err)
 		}
@@ -136,7 +133,7 @@ func (o *OutputPlugin) clearMsgTxnBuffer() {
 	o.msgTxnBuffer.tableMsgMap = make(map[string][]*core.Msg)
 }
 
-func (o *OutputPlugin) execute(msgs []*core.Msg, table *metas.Table, targetSchema string, targetTable string) error {
+func (o *OutputPlugin) execute(msgs []*core.Msg, columnsMapper metas.ColumnsMapper, targetSchema string, targetTable string) error {
 	if len(msgs) == 0 {
 		return nil
 	}
@@ -149,7 +146,7 @@ func (o *OutputPlugin) execute(msgs []*core.Msg, table *metas.Table, targetSchem
 	log.Debugf("%s bulk load %s.%s row data num: %d", PluginName, targetSchema, targetTable, len(jsonList))
 	var err error
 	for i := 0; i < RetryCount; i++ {
-		err = o.sendData(jsonList, table, targetSchema, targetTable)
+		err = o.sendData(jsonList, columnsMapper, targetSchema, targetTable)
 		if err != nil {
 			log.Warnf("send data failed, err: %v, execute retry...", err.Error())
 			if i+1 == RetryCount {
@@ -163,7 +160,7 @@ func (o *OutputPlugin) execute(msgs []*core.Msg, table *metas.Table, targetSchem
 	return err
 }
 
-func (o *OutputPlugin) sendData(content []string, table *metas.Table, targetSchema string, targetTable string) error {
+func (o *OutputPlugin) sendData(content []string, columnsMapper metas.ColumnsMapper, targetSchema string, targetTable string) error {
 	loadUrl := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load",
 		o.Host, o.LoadPort, targetSchema, targetTable)
 	newContent := `[` + strings.Join(content, ",") + `]`
@@ -178,8 +175,8 @@ func (o *OutputPlugin) sendData(content []string, table *metas.Table, targetSche
 	req.Header.Add("strip_outer_array", "true")
 
 	var columnArray []string
-	for _, column := range table.Columns {
-		columnArray = append(columnArray, column.Name)
+	for _, column := range columnsMapper.SourceColumns {
+		columnArray = append(columnArray, column)
 	}
 	columnArray = append(columnArray, DeleteColumn)
 	columns := fmt.Sprintf("%s, __op = %s", strings.Join(columnArray, ","), DeleteColumn)

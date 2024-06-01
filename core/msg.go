@@ -3,11 +3,13 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sqlpub/qin-cdc/metas"
 	"time"
 )
 
 type MsgType string
 type ActionType string
+type DDLActionType string
 
 const (
 	MsgDML MsgType = "dml"
@@ -18,6 +20,12 @@ const (
 	UpdateAction  ActionType = "update"
 	DeleteAction  ActionType = "delete"
 	ReplaceAction ActionType = "replace"
+
+	CreateAction   DDLActionType = "create"
+	AlterAction    DDLActionType = "alter"
+	RenameAction   DDLActionType = "rename"
+	DropAction     DDLActionType = "drop"
+	TruncateAction DDLActionType = "Truncate"
 )
 
 type Msg struct {
@@ -32,9 +40,16 @@ type Msg struct {
 }
 
 type DMLMsg struct {
-	Action ActionType
-	Data   map[string]interface{}
-	Old    map[string]interface{}
+	Action       ActionType
+	Data         map[string]interface{}
+	Old          map[string]interface{}
+	TableVersion uint
+}
+
+type DDLMsg struct {
+	Action       DDLActionType
+	NewTable     metas.Table
+	DdlStatement metas.DdlStatement
 }
 
 func (m *Msg) ToString() string {

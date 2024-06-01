@@ -14,9 +14,10 @@ import (
 
 type MetaPlugin struct {
 	*config.MysqlConfig
-	tables map[string]*metas.Table
-	db     *sql.DB
-	mu     sync.Mutex
+	tables        map[string]*metas.Table
+	tablesVersion map[string]*metas.Table
+	db            *sql.DB
+	mu            sync.Mutex
 }
 
 func (m *MetaPlugin) Configure(conf map[string]interface{}) error {
@@ -30,6 +31,7 @@ func (m *MetaPlugin) Configure(conf map[string]interface{}) error {
 
 func (m *MetaPlugin) LoadMeta(routers []*metas.Router) (err error) {
 	m.tables = make(map[string]*metas.Table)
+	m.tablesVersion = make(map[string]*metas.Table)
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/information_schema?charset=utf8mb4&timeout=3s",
 		m.MysqlConfig.UserName, m.MysqlConfig.Password,
@@ -58,7 +60,10 @@ func (m *MetaPlugin) LoadMeta(routers []*metas.Router) (err error) {
 		if err != nil {
 			return err
 		}
-		m.tables[metas.GenerateMapRouterKey(router.SourceSchema, router.SourceTable)] = table
+		err = m.Add(table)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -76,17 +81,40 @@ func (m *MetaPlugin) GetAll() map[string]*metas.Table {
 	return m.tables
 }
 
+func (m *MetaPlugin) GetVersion(schema string, tableName string, version uint) (table *metas.Table, err error) {
+	key := metas.GenerateMapRouterVersionKey(schema, tableName, version)
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.tablesVersion[key], err
+}
+
+func (m *MetaPlugin) GetVersions(schema string, tableName string) []*metas.Table {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	tables := make([]*metas.Table, 0)
+	for k, table := range m.tablesVersion {
+		s, t, _ := metas.SplitMapRouterVersionKey(k)
+		if schema == s && tableName == t {
+			tables = append(tables, table)
+		}
+	}
+	return tables
+}
+
 func (m *MetaPlugin) Add(newTable *metas.Table) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.tables[metas.GenerateMapRouterKey(newTable.Schema, newTable.Name)] = newTable
+	m.tablesVersion[metas.GenerateMapRouterVersionKey(newTable.Schema, newTable.Name, newTable.Version)] = newTable
 	return nil
 }
 
 func (m *MetaPlugin) Update(newTable *metas.Table) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	newTable.Version += 1
 	m.tables[metas.GenerateMapRouterKey(newTable.Schema, newTable.Name)] = newTable
+	m.tablesVersion[metas.GenerateMapRouterVersionKey(newTable.Schema, newTable.Name, newTable.Version)] = newTable
 	return nil
 }
 
@@ -94,6 +122,9 @@ func (m *MetaPlugin) Delete(schema string, name string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.tables, metas.GenerateMapRouterKey(schema, name))
+	for _, table := range m.GetVersions(schema, name) {
+		delete(m.tablesVersion, metas.GenerateMapRouterVersionKey(schema, name, table.Version))
+	}
 	return nil
 }
 
