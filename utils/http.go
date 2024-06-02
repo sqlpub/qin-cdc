@@ -14,7 +14,7 @@ func StartHttp(inputParam *Help) {
 	// Start prometheus http monitor
 	go func() {
 		metrics.OpsStartTime.Set(float64(time.Now().Unix()))
-		log.Infof("starting http on port %d", *inputParam.HttpPort)
+		log.Infof("starting http on port: %d", *inputParam.HttpPort)
 		http.Handle("/metrics", promhttp.Handler())
 		httpPortAddr := fmt.Sprintf(":%d", *inputParam.HttpPort)
 		err := http.ListenAndServe(httpPortAddr, nil)

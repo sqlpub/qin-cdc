@@ -3,6 +3,7 @@ package utils
 import (
 	"flag"
 	"github.com/go-demo/version"
+	"github.com/siddontang/go-log/log"
 	"os"
 )
 
@@ -28,5 +29,6 @@ func InitHelp() (help *Help) {
 		version.PrintVersion()
 		os.Exit(0)
 	}
+	log.Infof("starting version: %s", version.Version)
 	return help
 }
