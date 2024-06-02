@@ -64,15 +64,6 @@ match-schema = "mysql_test"
 match-table = "tb1"
 columns = ["phone"]
 
-[[transforms]]
-type = "mapper-column"
-[transforms.config]
-match-schema = "mysql_test"
-match-table = "tb1"
-[transforms.config.mapper]
-id = "user_id"
-name = "nick_name"
-
 [output]
 type = "starrocks"
 
@@ -89,19 +80,20 @@ batch-interval-ms = 1000
 parallel-workers = 4
 
 [[output.config.routers]]
-source-schema = "sysbenchts"
-source-table = "sbtest1"
+source-schema = "mysql_test"
+source-table = "tb1"
 target-schema = "sr_test"
-target-table = "ods_sbtest1"
+target-table = "ods_tb1"
 
 [[output.config.routers]]
-source-schema = "sysbenchts"
-source-table = "sbtest2"
+source-schema = "mysql_test"
+source-table = "tb2"
 target-schema = "sr_test"
-target-table = "ods_sbtest2"
-[output.config.routers.columns-mapper]
-source-columns = []
-target-columns = []
+target-table = "ods_tb2"
+# mapper column, optional, if empty, same name mapping
+# [output.config.routers.columns-mapper]
+# source-columns = []
+# target-columns = []
 ```
 
 #### 4. View Help

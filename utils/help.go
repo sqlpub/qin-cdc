@@ -21,7 +21,7 @@ func InitHelp() (help *Help) {
 	help.LogLevel = flag.String("level", "info", "log level")
 	help.LogFile = flag.String("log-file", "qin-cdc.log", "log file")
 	help.Daemon = flag.Bool("daemon", false, "daemon run, must specify param 'log-file'")
-	help.HttpPort = flag.Uint("http-port", 7016, "http monitor port, curl http://localhost:6166/metrics")
+	help.HttpPort = flag.Uint("http-port", 7716, "http monitor port, curl http://localhost:7716/metrics")
 	flag.BoolVar(&help.printVersion, "version", false, "print program build version")
 	flag.Parse()
 	if help.printVersion {
