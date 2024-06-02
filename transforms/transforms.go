@@ -30,8 +30,29 @@ func NewMatcherTransforms(transConfigs []config.TransformConfig, routers *metas.
 					}
 				}
 			}
-			log.Infof("transform: %s is completed", RenameColumnTransName)
+			log.Infof("load transform: %s", RenameColumnTransName)
 			matcher = append(matcher, rct)
+		case DeleteColumnTransName:
+			dct := &DeleteColumnTrans{}
+			if err := dct.NewTransform(tc.Config); err != nil {
+				log.Fatal(err)
+			}
+			// delete router mapper column name
+			for _, router := range routers.Raws {
+				if router.SourceSchema == dct.matchSchema && router.SourceTable == dct.matchTable {
+					for _, column := range dct.columns {
+						sourceColumns := make([]string, len(router.ColumnsMapper.SourceColumns))
+						copy(sourceColumns, router.ColumnsMapper.SourceColumns)
+						for i2, sourceColumn := range sourceColumns {
+							if sourceColumn == column {
+								router.ColumnsMapper.SourceColumns = append(router.ColumnsMapper.SourceColumns[:i2], router.ColumnsMapper.SourceColumns[i2+1:]...)
+							}
+						}
+					}
+				}
+			}
+			log.Infof("load transform: %s", DeleteColumnTransName)
+			matcher = append(matcher, dct)
 		default:
 			log.Warnf("transform: %s unhandled will not take effect", typ)
 		}

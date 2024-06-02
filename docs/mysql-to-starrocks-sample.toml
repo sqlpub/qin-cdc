@@ -17,26 +17,17 @@ password = "root"
 [[transforms]]
 type = "rename-column"
 [transforms.config]
-match-schema = "mysql_test"
-match-table = "tb1"
-columns = ["col_1", "col_2"]
-rename-as = ["col_11", "col_22"]
+match-schema = "sysbenchts"
+match-table = "sbtest1"
+columns = ["k", "c"]
+rename-as = ["k_1", "c_1"]
 
 [[transforms]]
 type = "delete-column"
 [transforms.config]
-match-schema = "mysql_test"
-match-table = "tb1"
-columns = ["phone"]
-
-[[transforms]]
-type = "mapper-column"
-[transforms.config]
-match-schema = "mysql_test"
-match-table = "tb1"
-[transforms.config.mapper]
-id = "user_id"
-name = "nick_name"
+match-schema = "sysbenchts"
+match-table = "sbtest1"
+columns = ["c_1"]
 
 [output]
 type = "starrocks"
