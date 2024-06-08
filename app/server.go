@@ -102,7 +102,7 @@ func (s *Server) initMeta(conf *config.Config) (err error) {
 	}
 
 	// input meta
-	plugin, err := registry.GetPlugin(registry.MetaPlugin, conf.InputConfig.Type)
+	plugin, err := registry.GetPlugin(registry.MetaPlugin, string(registry.InputPlugin)+conf.InputConfig.Type)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (s *Server) initMeta(conf *config.Config) (err error) {
 	}
 
 	// output meta
-	plugin, err = registry.GetPlugin(registry.MetaPlugin, conf.OutputConfig.Type)
+	plugin, err = registry.GetPlugin(registry.MetaPlugin, string(registry.OutputPlugin)+conf.OutputConfig.Type)
 	if err != nil {
 		return err
 	}

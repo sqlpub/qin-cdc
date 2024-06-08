@@ -35,6 +35,9 @@ func (m *Metas) InitRouterColumnsMapper() error {
 		}
 		for _, column := range table.Columns {
 			router.ColumnsMapper.SourceColumns = append(router.ColumnsMapper.SourceColumns, column.Name)
+			if column.IsPrimaryKey {
+				router.ColumnsMapper.PrimaryKeys = append(router.ColumnsMapper.PrimaryKeys, column.Name)
+			}
 		}
 		table, err = m.Output.Get(router.TargetSchema, router.TargetTable)
 		if err != nil {
@@ -53,20 +56,27 @@ func (m *Metas) InitRouterColumnsMapper() error {
 func (m *Metas) InitRouterColumnsMapperMapMapper() {
 	// router column mapper MapMapper
 	for _, router := range m.Routers.Raws {
-		// user config output.config.routers.columns-mapper.map-mapper, continue
-		if len(router.ColumnsMapper.MapMapper) > 0 {
-			continue
-		}
 		mapMapper := make(map[string]string)
-		for _, column := range router.ColumnsMapper.SourceColumns {
-			// same name mapping
-			for _, targetColumn := range router.ColumnsMapper.TargetColumns {
-				if column == targetColumn {
-					mapMapper[column] = targetColumn
-					break
+		mapMapperOrder := make([]string, 0)
+		// user config output.config.routers.columns-mapper.map-mapper
+		if len(router.ColumnsMapper.MapMapper) > 0 {
+			for i, column := range router.ColumnsMapper.SourceColumns {
+				mapMapper[column] = router.ColumnsMapper.TargetColumns[i]
+				mapMapperOrder = append(mapMapperOrder, column)
+			}
+		} else {
+			for _, column := range router.ColumnsMapper.SourceColumns {
+				// same name mapping
+				for _, targetColumn := range router.ColumnsMapper.TargetColumns {
+					if column == targetColumn {
+						mapMapper[column] = targetColumn
+						mapMapperOrder = append(mapMapperOrder, column)
+						break
+					}
 				}
 			}
 		}
 		router.ColumnsMapper.MapMapper = mapMapper
+		router.ColumnsMapper.MapMapperOrder = mapMapperOrder
 	}
 }

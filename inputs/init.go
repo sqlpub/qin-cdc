@@ -8,6 +8,6 @@ import (
 func init() {
 	// input mysql plugins
 	registry.RegisterPlugin(registry.InputPlugin, mysql.PluginName, &mysql.InputPlugin{})
-	registry.RegisterPlugin(registry.MetaPlugin, mysql.PluginName, &mysql.MetaPlugin{})
+	registry.RegisterPlugin(registry.MetaPlugin, string(registry.InputPlugin+mysql.PluginName), &mysql.MetaPlugin{})
 	registry.RegisterPlugin(registry.PositionPlugin, mysql.PluginName, &mysql.PositionPlugin{})
 }

@@ -5,7 +5,12 @@ type MysqlConfig struct {
 	Port     int
 	UserName string
 	Password string
-	Options  map[string]interface{}
+	Options  struct {
+		StartGtid       string `toml:"start-gtid"`
+		ServerId        int    `toml:"server-id"`
+		BatchSize       int    `toml:"batch-size"`
+		BatchIntervalMs int    `toml:"batch-interval-ms"`
+	}
 }
 
 type StarrocksConfig struct {

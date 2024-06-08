@@ -14,9 +14,10 @@ English | [简体中文](README.zh-CN.md)
 3. TODO mongo
 
 #### target
-1. starrocks
-2. TODO doris
-3. TODO mysql
+
+1. mysql 
+2. starrocks 
+3. TODO doris
 4. TODO kafka json
 5. TODO kafka canal
 6. TODO kafka aliyun_dts_canal
@@ -98,12 +99,12 @@ target-table = "ods_tb2"
 
 #### 4. View Help
 ```shell
-[sr@ ~]$ ./go-mysql-sr-linux-xxxxxx -h
+[sr@ ~]$ ./qin-cdc-linux-xxxxxx -h
 ```
 
 #### 5. Startup
 ```shell
-[sr@ ~]$ ./go-mysql-sr-linux-xxxxxx -config mysql-to-starrocks.toml -log-file mysql2starrocks.log -level info -daemon
+[sr@ ~]$ ./qin-cdc-linux-xxxxxx -config mysql-to-starrocks.toml -log-file mysql2starrocks.log -level info -daemon
 ```
 
 #### 6. View logs

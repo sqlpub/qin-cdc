@@ -16,9 +16,11 @@ type Router struct {
 }
 
 type ColumnsMapper struct {
-	SourceColumns []string
-	TargetColumns []string
-	MapMapper     map[string]string
+	PrimaryKeys    []string // source
+	SourceColumns  []string
+	TargetColumns  []string
+	MapMapper      map[string]string
+	MapMapperOrder []string
 }
 
 type Routers struct {

@@ -118,7 +118,7 @@ func (p *PositionPlugin) getPosFromMetaDb() string {
 }
 
 func (p *PositionPlugin) getPosFromConfig() string {
-	if pos, ok := p.MysqlConfig.Options["start-gtid"]; ok {
+	if pos := p.MysqlConfig.Options.StartGtid; pos != "" {
 		return fmt.Sprintf("%v", pos)
 	}
 	return ""

@@ -136,7 +136,7 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 	if ddlSql == "BEGIN" {
 		return
 	}
-	ddlStatements, err := TableDdlParser(ddlSql, schemaName)
+	ddlStatements, err := metas.TableDdlParser(ddlSql, schemaName)
 	if err != nil {
 		log.Fatalf("ddl event handle failed: %s", err.Error())
 	}
@@ -189,7 +189,7 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 				log.Fatalf("table deep copy failed: %s", err.Error())
 			}
 			if ddlStatement.IsAlterTable { // alter table
-				err = TableDdlHandle(deepCopy, ddlStatement.RawSql)
+				err = metas.TableDdlHandle(deepCopy, ddlStatement.RawSql)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
@@ -198,7 +198,7 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
 			} else if ddlStatement.IsCreateTable {
-				err = TableDdlHandle(deepCopy, ddlStatement.RawSql)
+				err = metas.TableDdlHandle(deepCopy, ddlStatement.RawSql)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
@@ -212,7 +212,7 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
 			} else if ddlStatement.IsRenameTable { // rename table
-				err = TableDdlHandle(deepCopy, ddlStatement.RawSql)
+				err = metas.TableDdlHandle(deepCopy, ddlStatement.RawSql)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}

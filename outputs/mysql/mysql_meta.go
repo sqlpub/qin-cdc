@@ -3,7 +3,6 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sqlpub/qin-cdc/config"
 	"github.com/sqlpub/qin-cdc/metas"
@@ -22,8 +21,8 @@ type MetaPlugin struct {
 
 func (m *MetaPlugin) Configure(conf map[string]interface{}) error {
 	m.MysqlConfig = &config.MysqlConfig{}
-	var source = conf["source"]
-	if err := mapstructure.Decode(source, m.MysqlConfig); err != nil {
+	var target = conf["target"]
+	if err := mapstructure.Decode(target, m.MysqlConfig); err != nil {
 		return err
 	}
 	return nil
@@ -44,7 +43,7 @@ func (m *MetaPlugin) LoadMeta(routers []*metas.Router) (err error) {
 	m.db.SetMaxOpenConns(2)
 	m.db.SetMaxIdleConns(2)
 	for _, router := range routers {
-		row := m.db.QueryRow(fmt.Sprintf("show create table `%s`.`%s`", router.SourceSchema, router.SourceTable))
+		row := m.db.QueryRow(fmt.Sprintf("show create table `%s`.`%s`", router.TargetSchema, router.TargetTable))
 		if row.Err() != nil {
 			return err
 		}

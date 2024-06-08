@@ -1,4 +1,4 @@
-package mysql
+package metas
 
 import (
 	"bytes"
@@ -9,7 +9,6 @@ import (
 	"github.com/pingcap/tidb/pkg/parser/format"
 	"github.com/pingcap/tidb/pkg/parser/mysql"
 	"github.com/pingcap/tidb/pkg/parser/test_driver"
-	"github.com/sqlpub/qin-cdc/metas"
 )
 
 var p *parser.Parser
@@ -27,37 +26,37 @@ func parse(sql string) (*ast.StmtNode, error) {
 	return &stmtNodes[0], nil
 }
 
-func columnDefParse(columnDef *ast.ColumnDef) metas.Column {
-	tableColumn := metas.Column{}
+func columnDefParse(columnDef *ast.ColumnDef) Column {
+	tableColumn := Column{}
 	tableColumn.Name = columnDef.Name.String()
 	tableColumn.RawType = columnDef.Tp.String()
 	switch columnDef.Tp.GetType() {
 	case mysql.TypeEnum:
-		tableColumn.Type = metas.TypeEnum
+		tableColumn.Type = TypeEnum
 	case mysql.TypeSet:
-		tableColumn.Type = metas.TypeSet
+		tableColumn.Type = TypeSet
 	case mysql.TypeTimestamp:
-		tableColumn.Type = metas.TypeTimestamp
+		tableColumn.Type = TypeTimestamp
 	case mysql.TypeDatetime:
-		tableColumn.Type = metas.TypeDatetime
+		tableColumn.Type = TypeDatetime
 	case mysql.TypeDuration:
-		tableColumn.Type = metas.TypeTime
+		tableColumn.Type = TypeTime
 	case mysql.TypeDouble, mysql.TypeFloat:
-		tableColumn.Type = metas.TypeFloat
+		tableColumn.Type = TypeFloat
 	case mysql.TypeNewDecimal:
-		tableColumn.Type = metas.TypeDecimal
+		tableColumn.Type = TypeDecimal
 	case mysql.TypeBit:
-		tableColumn.Type = metas.TypeBit
+		tableColumn.Type = TypeBit
 	case mysql.TypeVarchar, mysql.TypeString, mysql.TypeVarString:
-		tableColumn.Type = metas.TypeString
+		tableColumn.Type = TypeString
 	case mysql.TypeTiny, mysql.TypeShort, mysql.TypeInt24, mysql.TypeLong, mysql.TypeLonglong, mysql.TypeYear:
-		tableColumn.Type = metas.TypeNumber
+		tableColumn.Type = TypeNumber
 	case mysql.TypeDate:
-		tableColumn.Type = metas.TypeDate
+		tableColumn.Type = TypeDate
 	case mysql.TypeJSON:
-		tableColumn.Type = metas.TypeJson
+		tableColumn.Type = TypeJson
 	case mysql.TypeTinyBlob, mysql.TypeMediumBlob, mysql.TypeBlob, mysql.TypeLongBlob:
-		tableColumn.Type = metas.TypeBinary
+		tableColumn.Type = TypeBinary
 	}
 	for _, columnOption := range columnDef.Options {
 		switch columnOption.Tp {
@@ -88,8 +87,8 @@ func columnDefParse(columnDef *ast.ColumnDef) metas.Column {
 	return tableColumn
 }
 
-func NewTable(createDdlSql string) (*metas.Table, error) {
-	tab := &metas.Table{}
+func NewTable(createDdlSql string) (*Table, error) {
+	tab := &Table{}
 	err := TableDdlHandle(tab, createDdlSql)
 	if err != nil {
 		return nil, err
@@ -97,7 +96,7 @@ func NewTable(createDdlSql string) (*metas.Table, error) {
 	return tab, nil
 }
 
-func TableDdlHandle(tab *metas.Table, sql string) error {
+func TableDdlHandle(tab *Table, sql string) error {
 	astNode, err := parse(sql)
 	if err != nil {
 		return errors.New(fmt.Sprintf("parse error: %v\n", err.Error()))
@@ -129,12 +128,12 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 						for i, column2 := range tab.Columns {
 							// add new column to relative column after
 							if column2.Name == relativeColumn {
-								tab.Columns = append(tab.Columns[:i+1], append([]metas.Column{tableColumn}, tab.Columns[i+1:]...)...)
+								tab.Columns = append(tab.Columns[:i+1], append([]Column{tableColumn}, tab.Columns[i+1:]...)...)
 							}
 						}
 					} else if isFirst {
 						// add new column to first
-						tab.Columns = append([]metas.Column{tableColumn}, tab.Columns...)
+						tab.Columns = append([]Column{tableColumn}, tab.Columns...)
 					} else {
 						tab.Columns = append(tab.Columns, tableColumn)
 					}
@@ -175,7 +174,7 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 						for i, column2 := range tab.Columns {
 							// add new column to relative column after
 							if column2.Name == relativeColumn {
-								tab.Columns = append(tab.Columns[:i+1], append([]metas.Column{tableColumn}, tab.Columns[i+1:]...)...)
+								tab.Columns = append(tab.Columns[:i+1], append([]Column{tableColumn}, tab.Columns[i+1:]...)...)
 							}
 						}
 					} else if isFirst {
@@ -186,7 +185,7 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 							}
 						}
 						// add new column to first
-						tab.Columns = append([]metas.Column{tableColumn}, tab.Columns...)
+						tab.Columns = append([]Column{tableColumn}, tab.Columns...)
 					} else {
 						// overwrite column
 						for i, column2 := range tab.Columns {
@@ -223,7 +222,7 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 						for i, column2 := range tab.Columns {
 							// add new column to relative column after
 							if column2.Name == relativeColumn {
-								tab.Columns = append(tab.Columns[:i+1], append([]metas.Column{tableColumn}, tab.Columns[i+1:]...)...)
+								tab.Columns = append(tab.Columns[:i+1], append([]Column{tableColumn}, tab.Columns[i+1:]...)...)
 							}
 						}
 					} else if isFirst {
@@ -234,7 +233,7 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 							}
 						}
 						// add new column to first
-						tab.Columns = append([]metas.Column{tableColumn}, tab.Columns...)
+						tab.Columns = append([]Column{tableColumn}, tab.Columns...)
 					} else {
 						// overwrite column
 						for i, column2 := range tab.Columns {
@@ -323,7 +322,7 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 				continue
 			}
 		}
-		tab.Columns = []metas.Column{}
+		tab.Columns = []Column{}
 		for _, columnDef := range t.Cols {
 			tableColumn := columnDefParse(columnDef)
 			if tableColumn.IsPrimaryKey {
@@ -376,15 +375,15 @@ func TableDdlHandle(tab *metas.Table, sql string) error {
 	return nil
 }
 
-func TableDdlParser(sql string, schema string) ([]*metas.DdlStatement, error) {
+func TableDdlParser(sql string, schema string) ([]*DdlStatement, error) {
 	astNode, err := parse(sql)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("parse error: %v\n", err.Error()))
 	}
-	ddls := make([]*metas.DdlStatement, 0)
+	ddls := make([]*DdlStatement, 0)
 	switch t := (*astNode).(type) {
 	case *ast.AlterTableStmt:
-		ddl := &metas.DdlStatement{}
+		ddl := &DdlStatement{}
 		tableSchema := t.Table.Schema.String()
 		if tableSchema != "" {
 			ddl.Schema = tableSchema
@@ -401,7 +400,7 @@ func TableDdlParser(sql string, schema string) ([]*metas.DdlStatement, error) {
 		ddl.IsAlterTable = true
 		ddls = append(ddls, ddl)
 	case *ast.CreateTableStmt:
-		ddl := &metas.DdlStatement{}
+		ddl := &DdlStatement{}
 		tableSchema := t.Table.Schema.String()
 		if tableSchema != "" {
 			ddl.Schema = tableSchema
@@ -440,7 +439,7 @@ func TableDdlParser(sql string, schema string) ([]*metas.DdlStatement, error) {
 		ddls = append(ddls, ddl)
 	case *ast.DropTableStmt:
 		for _, tableName := range t.Tables {
-			ddl := &metas.DdlStatement{}
+			ddl := &DdlStatement{}
 			tableSchema := tableName.Schema.String()
 			if tableSchema != "" {
 				ddl.Schema = tableSchema
@@ -459,7 +458,7 @@ func TableDdlParser(sql string, schema string) ([]*metas.DdlStatement, error) {
 		}
 	case *ast.RenameTableStmt:
 		for _, tableToTable := range t.TableToTables {
-			ddl := &metas.DdlStatement{}
+			ddl := &DdlStatement{}
 			oldSchema := tableToTable.OldTable.Schema.String()
 			if oldSchema != "" {
 				ddl.Schema = oldSchema
@@ -483,7 +482,7 @@ func TableDdlParser(sql string, schema string) ([]*metas.DdlStatement, error) {
 			ddls = append(ddls, ddl)
 		}
 	case *ast.TruncateTableStmt:
-		ddl := &metas.DdlStatement{}
+		ddl := &DdlStatement{}
 		tableSchema := t.Table.Schema.String()
 		if tableSchema != "" {
 			ddl.Schema = tableSchema

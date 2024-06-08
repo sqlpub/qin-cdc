@@ -37,12 +37,11 @@ func closeConn(db *sql.DB) {
 }
 
 func getServerId(conf *config.MysqlConfig) uint32 {
-	if serverId, ok := conf.Options["server-id"]; ok {
-		if id, ok := serverId.(int64); ok {
-			return uint32(id)
-		} else {
-			log.Fatalf("options server-id: %v is invalid, must be of type int", serverId)
-		}
+	serverId := conf.Options.ServerId
+	if serverId > 0 {
+		return uint32(serverId)
+	} else if serverId < 0 {
+		log.Fatalf("options server-id: %v is invalid, must be greater than 0", serverId)
 	}
 	// default generate rand value [1001, 2000]
 	return uint32(rand.New(rand.NewSource(time.Now().Unix())).Intn(1000)) + 1001

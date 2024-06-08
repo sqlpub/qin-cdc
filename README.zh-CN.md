@@ -13,9 +13,10 @@
 3. TODO mongo
 
 #### 目的
-1. starrocks
-2. TODO doris
-3. TODO mysql
+
+1. mysql 
+2. starrocks 
+3. TODO doris
 4. TODO kafka json
 5. TODO kafka canal
 6. TODO kafka aliyun_dts_canal
@@ -105,12 +106,12 @@ target-columns = []
 
 #### 4. 查看帮助
 ```shell
-[sr@ ~]$ ./go-mysql-sr-linux-xxxxxx -h
+[sr@ ~]$ ./qin-cdc-linux-xxxxxx -h
 ```
 
 #### 5. 启动
 ```shell
-[sr@ ~]$ ./go-mysql-sr-linux-xxxxxx -config mysql-to-starrocks.toml -log-file mysql2starrocks.log -level info -daemon
+[sr@ ~]$ ./qin-cdc-linux-xxxxxx -config mysql-to-starrocks.toml -log-file mysql2starrocks.log -level info -daemon
 ```
 
 #### 6. 查看日志
