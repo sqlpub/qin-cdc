@@ -2,7 +2,7 @@ package starrocks
 
 import (
 	"encoding/base64"
-	"encoding/json"
+	"github.com/goccy/go-json"
 	"github.com/siddontang/go-log/log"
 	"github.com/sqlpub/qin-cdc/core"
 	"io"
