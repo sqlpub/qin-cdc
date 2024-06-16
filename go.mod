@@ -7,15 +7,15 @@ require (
 	github.com/go-demo/version v0.0.0-20200109120206-2cde9473fd92
 	github.com/go-mysql-org/go-mysql v1.8.0
 	github.com/go-sql-driver/mysql v1.8.1
-	github.com/goccy/go-json v0.10.2
-	github.com/google/uuid v1.3.0
+	github.com/goccy/go-json v0.10.3
+	github.com/google/uuid v1.6.0
 	github.com/juju/errors v1.0.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pingcap/tidb/pkg/parser v0.0.0-20240516062813-cc127c14b8cc
-	github.com/prometheus/client_golang v1.19.0
+	github.com/prometheus/client_golang v1.19.1
 	github.com/sevlyar/go-daemon v0.1.6
 	github.com/siddontang/go-log v0.0.0-20190221022429-1e957dd83bed
-	go.etcd.io/bbolt v1.3.9
+	go.etcd.io/bbolt v1.3.10
 )
 
 require (

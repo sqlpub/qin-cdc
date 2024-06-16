@@ -24,3 +24,15 @@ type StarrocksConfig struct {
 		BatchIntervalMs int `toml:"batch-interval-ms"`
 	}
 }
+
+type DorisConfig struct {
+	Host     string
+	Port     int
+	LoadPort int `mapstructure:"load-port"`
+	UserName string
+	Password string
+	Options  struct {
+		BatchSize       int `toml:"batch-size"`
+		BatchIntervalMs int `toml:"batch-interval-ms"`
+	}
+}

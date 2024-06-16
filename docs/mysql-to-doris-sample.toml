@@ -1,0 +1,60 @@
+# name 必填，多实例运行时保证全局唯一
+name = "mysql2doris"
+
+[input]
+type = "mysql"
+
+[input.config.source]
+host = "127.0.0.1"
+port = 3306
+username = "root"
+password = "root"
+
+[input.config.source.options]
+#start-gtid = "3ba13781-44eb-2157-88a5-0dc879ec2221:1-123456"
+#server-id = 1001
+
+[[transforms]]
+type = "rename-column"
+[transforms.config]
+match-schema = "sysbenchts"
+match-table = "sbtest1"
+columns = ["k", "c"]
+rename-as = ["k_1", "c_1"]
+
+[[transforms]]
+type = "delete-column"
+[transforms.config]
+match-schema = "sysbenchts"
+match-table = "sbtest1"
+columns = ["c_1"]
+
+[output]
+type = "doris"
+
+[output.config.target]
+host = "127.0.0.1"
+port = 9030
+load-port = 8030 # support fe httpPort:8030 or be httpPort:8040
+username = "root"
+password = "root"
+
+[input.config.target.options]
+batch-size = 1000
+batch-interval-ms = 1000
+parallel-workers = 4
+
+[[output.config.routers]]
+source-schema = "sysbenchts"
+source-table = "sbtest1"
+target-schema = "doris_test"
+target-table = "ods_sbtest1"
+
+[[output.config.routers]]
+source-schema = "sysbenchts"
+source-table = "sbtest2"
+target-schema = "doris_test"
+target-table = "ods_sbtest2"
+[output.config.routers.columns-mapper]
+source-columns = []
+target-columns = []
