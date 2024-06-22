@@ -3,6 +3,7 @@ package doris
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/juju/errors"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sqlpub/qin-cdc/config"
