@@ -8,7 +8,6 @@ import (
 	"github.com/sqlpub/qin-cdc/metas"
 	"strings"
 	"sync"
-	"time"
 )
 
 type MetaPlugin struct {
@@ -31,17 +30,10 @@ func (m *MetaPlugin) Configure(conf map[string]interface{}) error {
 func (m *MetaPlugin) LoadMeta(routers []*metas.Router) (err error) {
 	m.tables = make(map[string]*metas.Table)
 	m.tablesVersion = make(map[string]*metas.Table)
-	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/information_schema?charset=utf8mb4&timeout=3s",
-		m.MysqlConfig.UserName, m.MysqlConfig.Password,
-		m.MysqlConfig.Host, m.MysqlConfig.Port)
-	m.db, err = sql.Open("mysql", dsn)
+	m.db, err = getConn(m.MysqlConfig)
 	if err != nil {
 		return err
 	}
-	m.db.SetConnMaxLifetime(time.Minute * 3)
-	m.db.SetMaxOpenConns(2)
-	m.db.SetMaxIdleConns(2)
 	for _, router := range routers {
 		row := m.db.QueryRow(fmt.Sprintf("show create table `%s`.`%s`", router.TargetSchema, router.TargetTable))
 		if row.Err() != nil {
@@ -132,7 +124,5 @@ func (m *MetaPlugin) Save() error {
 }
 
 func (m *MetaPlugin) Close() {
-	if m.db != nil {
-		_ = m.db.Close()
-	}
+	closeConn(m.db)
 }
