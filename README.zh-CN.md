@@ -11,12 +11,13 @@
 1. mysql
 2. TODO sqlserver
 3. TODO mongo
+4. TODO oracle
 
 #### 目的
 
 1. mysql 
 2. starrocks 
-3. TODO doris
+3. doris
 4. TODO kafka json
 5. TODO kafka canal
 6. TODO kafka aliyun_dts_canal
