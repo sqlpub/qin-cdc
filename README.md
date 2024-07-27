@@ -19,9 +19,9 @@ English | [简体中文](README.zh-CN.md)
 1. mysql 
 2. starrocks 
 3. doris
-4. TODO kafka json
+4. kafka json
 5. TODO kafka canal
-6. TODO kafka aliyun_dts_canal
+6. kafka aliyun_dts_canal
 
 ### Quick start
 #### 1. Install

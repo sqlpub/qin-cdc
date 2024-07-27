@@ -40,7 +40,7 @@ partition-num = 1
 batch-size = 1000
 batch-interval-ms = 1000
 parallel-workers = 4
-output-format = "aliyun_dts_canal" # or aliyun_dts_canal
+output-format = "json" # or aliyun_dts_canal
 
 [[output.config.routers]]
 source-schema = "sysbenchts"
