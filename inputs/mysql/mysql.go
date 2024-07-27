@@ -11,6 +11,7 @@ type InputPlugin struct {
 	*config.MysqlConfig
 	in           chan *core.Msg
 	metas        *core.Metas
+	metaPlugin   *MetaPlugin
 	binlogTailer *BinlogTailer
 }
 
@@ -25,6 +26,7 @@ func (i *InputPlugin) Configure(conf map[string]interface{}) error {
 
 func (i *InputPlugin) NewInput(metas *core.Metas) {
 	i.metas = metas
+	i.metaPlugin = metas.Input.(*MetaPlugin)
 }
 
 func (i *InputPlugin) Start(pos core.Position, in chan *core.Msg) {

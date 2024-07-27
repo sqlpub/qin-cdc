@@ -12,6 +12,7 @@ type Router struct {
 	SourceTable   string `mapstructure:"source-table"`
 	TargetSchema  string `mapstructure:"target-schema"`
 	TargetTable   string `mapstructure:"target-table"`
+	DmlTopic      string `mapstructure:"dml-topic"`
 	ColumnsMapper ColumnsMapper
 }
 

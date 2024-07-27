@@ -5,50 +5,72 @@ import (
 	"github.com/sqlpub/qin-cdc/metas"
 )
 
-type Meta interface {
+type InputMeta interface {
 	LoadMeta(routers []*metas.Router) error
-	Get(schema string, tableName string) (*metas.Table, error)
-	GetAll() map[string]*metas.Table
+	GetMeta(*metas.Router) (*metas.Table, error)
+	// GetAll() map[string]*metas.Table
 	GetVersion(schema string, tableName string, version uint) (*metas.Table, error)
-	Add(*metas.Table) error
-	Update(newTable *metas.Table) error
-	Delete(string, string) error
+	// Add(*metas.Table) error
+	// Update(newTable *metas.Table) error
+	// Delete(string, string) error
+	Save() error
+	Close()
+}
+
+type OutputMeta interface {
+	LoadMeta(routers []*metas.Router) error
+	GetMeta(*metas.Router) (interface{}, error)
+	// GetAll() map[string]*metas.Table
+	// GetVersion(schema string, tableName string, version uint) (*metas.Table, error)
+	// Add(*metas.Table) error
+	// Update(newTable *metas.Table) error
+	// Delete(string, string) error
 	Save() error
 	Close()
 }
 
 type Metas struct {
-	Input   Meta
-	Output  Meta
+	Input   InputMeta
+	Output  OutputMeta
 	Routers *metas.Routers
 }
 
 func (m *Metas) InitRouterColumnsMapper() error {
 	// router column mapper
 	for _, router := range m.Routers.Raws {
-		table, err := m.Input.Get(router.SourceSchema, router.SourceTable)
+		inputTable, err := m.Input.GetMeta(router)
 		if err != nil {
 			return err
 		}
-		if table == nil {
-			return errors.Errorf("get input table meta failed, err: %s.%s not found", router.SourceSchema, router.SourceTable)
+		if inputTable == nil {
+			return errors.Errorf("get input meta failed, err: %s.%s not found", router.SourceSchema, router.SourceTable)
 		}
-		for _, column := range table.Columns {
+		for _, column := range inputTable.Columns {
 			router.ColumnsMapper.SourceColumns = append(router.ColumnsMapper.SourceColumns, column.Name)
 			if column.IsPrimaryKey {
 				router.ColumnsMapper.PrimaryKeys = append(router.ColumnsMapper.PrimaryKeys, column.Name)
 			}
 		}
-		table, err = m.Output.Get(router.TargetSchema, router.TargetTable)
+		metaObj, err := m.Output.GetMeta(router)
 		if err != nil {
 			return err
 		}
-		if table == nil {
-			return errors.Errorf("get output table meta failed, err: %s.%s not found", router.TargetSchema, router.TargetTable)
+
+		outputTable, ok := metaObj.(*metas.Table)
+		if ok {
+			if outputTable == nil {
+				return errors.Errorf("get output meta failed, err: %s.%s not found", router.TargetSchema, router.TargetTable)
+			}
+			for _, column := range outputTable.Columns {
+				router.ColumnsMapper.TargetColumns = append(router.ColumnsMapper.TargetColumns, column.Name)
+			}
+		} else {
+			// target == source
+			for _, column := range inputTable.Columns {
+				router.ColumnsMapper.TargetColumns = append(router.ColumnsMapper.TargetColumns, column.Name)
+			}
 		}
-		for _, column := range table.Columns {
-			router.ColumnsMapper.TargetColumns = append(router.ColumnsMapper.TargetColumns, column.Name)
-		}
+
 	}
 	return nil
 }

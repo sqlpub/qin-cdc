@@ -106,7 +106,7 @@ func (s *Server) initMeta(conf *config.Config) (err error) {
 	if err != nil {
 		return err
 	}
-	meta, ok := plugin.(core.Meta)
+	meta, ok := plugin.(core.InputMeta)
 	if !ok {
 		return errors.Errorf("not a valid meta type")
 	}
@@ -126,12 +126,12 @@ func (s *Server) initMeta(conf *config.Config) (err error) {
 	if err != nil {
 		return err
 	}
-	meta, ok = plugin.(core.Meta)
+	outputMeta, ok := plugin.(core.OutputMeta)
 	if !ok {
 		return errors.Errorf("not a valid meta type")
 	}
 
-	s.Metas.Output = meta
+	s.Metas.Output = outputMeta
 	err = plugin.Configure(conf.OutputConfig.Config)
 	if err != nil {
 		return err

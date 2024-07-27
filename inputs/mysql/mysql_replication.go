@@ -80,7 +80,7 @@ func (b *BinlogTailer) handleRotateEvent(e *replication.RotateEvent) {
 func (b *BinlogTailer) handleRowsEvent(ev *replication.BinlogEvent) {
 	e := ev.Event.(*replication.RowsEvent)
 	schemaName, tableName := string(e.Table.Schema), string(e.Table.Table)
-	tableMeta, _ := b.inputPlugin.metas.Input.Get(schemaName, tableName)
+	tableMeta, _ := b.inputPlugin.metaPlugin.Get(schemaName, tableName)
 	if tableMeta == nil {
 		return
 	}
@@ -144,14 +144,14 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 		schema := ddlStatement.Schema
 		name := ddlStatement.Name
 		var table *metas.Table
-		table, err = b.inputPlugin.metas.Input.Get(schema, name)
+		table, err = b.inputPlugin.metaPlugin.Get(schema, name)
 		if err != nil {
 			log.Fatalf("ddl event handle get table meta failed: %s", err.Error())
 		}
 
 		isSyncTable := false
 		isOnlineDdlTable := false
-		for _, v := range b.inputPlugin.metas.Input.GetAll() {
+		for _, v := range b.inputPlugin.metaPlugin.GetAll() {
 			if schema == v.Schema && name == v.Name {
 				isSyncTable = true
 				break
@@ -193,7 +193,7 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
-				err = b.inputPlugin.metas.Input.Update(deepCopy)
+				err = b.inputPlugin.metaPlugin.Update(deepCopy)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
@@ -202,12 +202,12 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
-				err = b.inputPlugin.metas.Input.Add(deepCopy)
+				err = b.inputPlugin.metaPlugin.Add(deepCopy)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
 			} else if ddlStatement.IsDropTable { // drop table
-				err = b.inputPlugin.metas.Input.Delete(schema, name)
+				err = b.inputPlugin.metaPlugin.Delete(schema, name)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
@@ -216,7 +216,7 @@ func (b *BinlogTailer) handleDDLEvent(ev *replication.BinlogEvent) {
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}
-				err = b.inputPlugin.metas.Input.Update(deepCopy)
+				err = b.inputPlugin.metaPlugin.Update(deepCopy)
 				if err != nil {
 					log.Fatalf("ddl event handle failed: %s", err.Error())
 				}

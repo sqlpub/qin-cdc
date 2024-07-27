@@ -20,8 +20,8 @@ type StarrocksConfig struct {
 	UserName string
 	Password string
 	Options  struct {
-		BatchSize       int `toml:"batch-size"`
-		BatchIntervalMs int `toml:"batch-interval-ms"`
+		BatchSize       int `toml:"batch-size" mapstructure:"batch-size"`
+		BatchIntervalMs int `toml:"batch-interval-ms" mapstructure:"batch-interval-ms"`
 	}
 }
 
@@ -32,7 +32,17 @@ type DorisConfig struct {
 	UserName string
 	Password string
 	Options  struct {
-		BatchSize       int `toml:"batch-size"`
-		BatchIntervalMs int `toml:"batch-interval-ms"`
+		BatchSize       int `toml:"batch-size" mapstructure:"batch-size"`
+		BatchIntervalMs int `toml:"batch-interval-ms" mapstructure:"batch-interval-ms"`
+	}
+}
+
+type KafkaConfig struct {
+	Brokers      []string `toml:"brokers"`
+	PartitionNum int      `toml:"partition-num" mapstructure:"partition-num"`
+	Options      struct {
+		BatchSize       int    `toml:"batch-size" mapstructure:"batch-size"`
+		BatchIntervalMs int    `toml:"batch-interval-ms" mapstructure:"batch-interval-ms"`
+		OutputFormat    string `toml:"output-format" mapstructure:"output-format"`
 	}
 }

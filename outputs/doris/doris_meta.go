@@ -112,6 +112,10 @@ func (m *MetaPlugin) LoadMeta(routers []*metas.Router) (err error) {
 	return nil
 }
 
+func (m *MetaPlugin) GetMeta(router *metas.Router) (table interface{}, err error) {
+	return m.Get(router.SourceSchema, router.SourceTable)
+}
+
 func (m *MetaPlugin) Get(schema string, tableName string) (table *metas.Table, err error) {
 	key := metas.GenerateMapRouterKey(schema, tableName)
 	m.mu.Lock()
