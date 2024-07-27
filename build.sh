@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version="v0.2.0"
+version="v0.3.0"
 currentDir=$(cd $(dirname "$0") || exit; pwd)
 
 path="github.com/go-demo/version"
@@ -14,5 +14,6 @@ mkdir -p "$newDir"
 echo start buid qin-cdc
 cd "$currentDir"/cmd || exit
 # go build -ldflags "$flagsMac" -o "$newDir"/go-"$dbType"-starrocks-mac-"$buildTimeFormat"
-GOOS=linux GOARCH=amd64 go build -ldflags "$flagsLinux" -o "$newDir"/qin-cdc-$version-"$buildTimeFormat"
+CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CXX=x86_64-linux-musl-g++ \
+ go build -tags musl -ldflags "-extldflags -static $flagsLinux" -o "$newDir"/qin-cdc-$version-"$buildTimeFormat"
 echo end buid qin-cdc

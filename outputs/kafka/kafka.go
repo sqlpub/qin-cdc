@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"fmt"
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	gokafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/goccy/go-json"
 	"github.com/mitchellh/mapstructure"
 	"github.com/siddontang/go-log/log"
@@ -23,7 +23,7 @@ type OutputPlugin struct {
 		size        int
 		tableMsgMap map[string][]*core.Msg
 	}
-	client       *kafka.Producer
+	client       *gokafka.Producer
 	lastPosition string
 }
 
@@ -78,7 +78,7 @@ func (o *OutputPlugin) Start(out chan *core.Msg, pos core.Position) {
 				}
 			case e := <-o.client.Events():
 				switch ev := e.(type) {
-				case *kafka.Message:
+				case *gokafka.Message:
 					m := ev
 					if m.TopicPartition.Error != nil {
 						log.Fatalf("Delivery failed: %v", m.TopicPartition.Error)
@@ -87,7 +87,7 @@ func (o *OutputPlugin) Start(out chan *core.Msg, pos core.Position) {
 					if !ok {
 						log.Fatalf("kafka send failed to get meta data")
 					}
-				case kafka.Error:
+				case gokafka.Error:
 					log.Fatalf("kafka producer failed, err: %v", ev)
 				default:
 					log.Infof("Ignored event: %s", ev)
@@ -169,8 +169,8 @@ func (o *OutputPlugin) execute(msgs []*core.Msg, table *metas.Table, dmlTopic st
 		kPartition := dataHash % uint64(o.PartitionNum)
 		kKey := strconv.FormatUint(dataHash, 10)
 
-		kMsg := kafka.Message{
-			TopicPartition: kafka.TopicPartition{Topic: &dmlTopic, Partition: int32(kPartition)},
+		kMsg := gokafka.Message{
+			TopicPartition: gokafka.TopicPartition{Topic: &dmlTopic, Partition: int32(kPartition)},
 			Key:            []byte(kKey),
 			Value:          bFormatMsg,
 			Opaque:         msg,
@@ -187,7 +187,7 @@ func (o *OutputPlugin) execute(msgs []*core.Msg, table *metas.Table, dmlTopic st
 	return nil
 }
 
-func (o *OutputPlugin) send(message *kafka.Message) error {
+func (o *OutputPlugin) send(message *gokafka.Message) error {
 	var err error
 	for i := 0; i < RetryCount; i++ {
 		err = o.client.Produce(message, nil)

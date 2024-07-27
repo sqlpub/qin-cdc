@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	gokafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sqlpub/qin-cdc/config"
 	"github.com/sqlpub/qin-cdc/metas"
@@ -11,7 +11,7 @@ import (
 type MetaPlugin struct {
 	*config.KafkaConfig
 	topics   map[string]*Topic
-	producer *kafka.Producer
+	producer *gokafka.Producer
 	mu       sync.Mutex
 }
 

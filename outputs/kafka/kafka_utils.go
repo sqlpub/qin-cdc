@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"fmt"
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	gokafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/juju/errors"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/siddontang/go-log/log"
@@ -27,8 +27,8 @@ const (
 	aliyunDtsCanal         formatType = "aliyun_dts_canal"
 )
 
-func getProducer(conf *config.KafkaConfig) (producer *kafka.Producer, err error) {
-	kafkaConf := &kafka.ConfigMap{
+func getProducer(conf *config.KafkaConfig) (producer *gokafka.Producer, err error) {
+	kafkaConf := &gokafka.ConfigMap{
 		"api.version.request": "true",
 		"message.max.bytes":   1000000,
 		"linger.ms":           10,
@@ -43,11 +43,11 @@ func getProducer(conf *config.KafkaConfig) (producer *kafka.Producer, err error)
 	if err != nil {
 		return nil, err
 	}
-	producer, err = kafka.NewProducer(kafkaConf)
+	producer, err = gokafka.NewProducer(kafkaConf)
 	return producer, err
 }
 
-func closeProducer(producer *kafka.Producer) {
+func closeProducer(producer *gokafka.Producer) {
 	if producer != nil {
 		producer.Close()
 	}
